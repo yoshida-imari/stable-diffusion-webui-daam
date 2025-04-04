@@ -67,6 +67,14 @@ def image_overlay_heat_map(img, heat_map, word=None, out_file=None, crop=None, a
         heat_map = _convert_heat_map_colors(heat_map)
         heat_map = heat_map.to('cpu').detach().numpy().copy().astype(np.uint8)
         heat_map_img = Image.fromarray(heat_map)
+        if heat_map_img.mode != img.mode:
+            # 例として RGBA にそろえる（もしくは "RGB" にそろえるなど）
+            img = img.convert("RGBA")
+            heat_map_img = heat_map_img.convert("RGBA")
+
+        # サイズが違う場合もそろえる
+        if heat_map_img.size != img.size:
+            heat_map_img = heat_map_img.resize(img.size, Image.Resampling.BICUBIC)
 
         img = Image.blend(img, heat_map_img, alpha)
     else:
